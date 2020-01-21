@@ -2,60 +2,33 @@
 
 using namespace std;
 
-void bfs(vector<int> connections[], bool visited[], int vertex) {
-    visited[vertex] = true;
-    for (int i = 0; i < connections[vertex].size(); i++) {
-        if (!visited[connections[vertex][i]])
-            bfs(connections, visited, connections[vertex][i]);
-    }
-}
-
-int search(vector<int> connections[]) {
-    bool visited[26];
-    for (int i = 0; i < 26; i++) visited[i] = false;
-
-    int num_trees = 0;
-    for (int i = 0; i < 26; i++) {
-        if (!visited[i] && connections[i].size() > 0) {
-            bfs(connections, visited, i);
-            num_trees++;
-        }
-    }
-
-    return num_trees;
-}
-
 int main() {
     int num_cases;
     scanf("%d", &num_cases);
 
-    for (int i = 0; i < num_cases; i++) {
-        vector<int> connections[26];
+    while (num_cases--) {
+        char edge[10];
+        int num_edges = 0;
 
-        char edge[52];
-        scanf("%s", edge);
-        while (edge[0] != '*') {
-            int vertex_1 = edge[1] - 'A';
-            int vertex_2 = edge[3] - 'A';
-
-            connections[vertex_1].push_back(vertex_2);
-            connections[vertex_2].push_back(vertex_1);
-
-            scanf("%s", edge);
+        bitset<26> has_edge;
+        while (scanf("%s", edge), edge[0] != '*') {
+            has_edge.set(edge[1] - 'A');
+            has_edge.set(edge[3] - 'A');
+            num_edges++;
         }
 
-        char vertices[52];
+        char vertices[100];
         scanf("%s", vertices);
 
-        int length = strlen(vertices), num_acorns = 0;
-        for (int i = 0; i < length; i += 2) {
-            int vertex = vertices[i] - 'A';
-            if (connections[vertex].size() == 0) num_acorns++;
+        int size = strlen(vertices);
+        int num_acorns = 0;
 
-            connections[vertex].push_back(vertex);
-        }
+        for (int i = 0; i < size; i += 2)
+            if (!has_edge.test(vertices[i] - 'A'))
+                num_acorns++;
 
-        int num_trees = search(connections) - num_acorns;
+        int num_vertices = (size + 1) / 2;
+        int num_trees = num_vertices - num_edges - num_acorns;
         printf("There are %d tree(s) and %d acorn(s).\n", num_trees, num_acorns);
     }
 }
