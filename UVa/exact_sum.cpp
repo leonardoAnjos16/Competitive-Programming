@@ -1,39 +1,29 @@
-#include <iostream>
+#include <bits/stdc++.h>
 
 using namespace std;
 
+#define bs binary_search
+#define lb lower_bound
+
+const int MAX = 1e4 + 5;
+
 int main() {
-    int numberBooks, money;
-    while (cin >> numberBooks) {
-        int *prices = new int[numberBooks];
-        for (int i = 0; i < numberBooks; i++)
-            cin >> prices[i];
+    int num_books;
+    while (scanf("%d", &num_books) != EOF) {
+        int books[MAX];
+        for (int i = 0; i < num_books; i++)
+            scanf("%d", &books[i]);
 
-        cin >> money;
+        sort(books, books + num_books);
 
-        for (int i = 0; i < numberBooks; i++) {
-            for (int j = 0; j < numberBooks - i - 1; j++) {
-                if (prices[j] < prices[j + 1]) {
-                    int aux = prices[j];
-                    prices[j] = prices[j + 1];
-                    prices[j + 1] = aux;
-                }
-            }
-        }
+        int price;
+        scanf("%d", &price);
 
-        int distance = 1;
-        int first, second;
-        bool done = false;
-        for (int i = 0; i < numberBooks && !done; i++, distance++) {
-            for (int j = 0; j < numberBooks - distance && !done; j++) {
-                if (prices[j] + prices[j + distance] == money) {
-                    first = prices[j + distance];
-                    second = prices[j];
-                    done = true;
-                }
-            }
-        }
+        int i = price / 2, j = price - i;
+        int index = lb(books, books + num_books, i) - books;
 
-        cout << "Peter should buy books whose prices are " << first << " and " << second << "." << endl << endl;
+        if (i == j && (index >= (num_books - 1) || books[index + 1] != i)) i--, j++;
+        while (!(bs(books, books + num_books, i) && bs(books, books + num_books, j))) i--, j++;
+        printf("Peter should buy books whose prices are %d and %d.\n\n", i, j);
     }
 }
