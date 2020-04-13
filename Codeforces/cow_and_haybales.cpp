@@ -2,31 +2,22 @@
 
 using namespace std;
 
-#define MAX 105
+const int MAX = 105;
 
 int main() {
-    int num_cases;
-    scanf("%d", &num_cases);
+    int t; scanf("%d", &t);
+    while (t--) {
+        int n, d; scanf("%d %d", &n, &d);
 
-    while (num_cases--) {
-        int num_piles, num_days;
-        scanf("%d %d", &num_piles, &num_days);
+        int a[MAX];
+        for (int i = 0; i < n; i++)
+            scanf("%d", &a[i]);
 
-        int piles[MAX];
-        for (int i = 0; i < num_piles; i++)
-            scanf("%d", &piles[i]);
-
-        while (num_days--) {
-            if (piles[1]) piles[0]++, piles[1]--;
-            else {
-                int pos = 1;
-                while (++pos < num_piles && !piles[pos]);
-
-                if (pos < num_piles) piles[pos - 1]++, piles[pos]--;
-                else break;
-            }
+        for (int i = 1; i < n; i++) {
+            int aux = min(d / i, a[i]);
+            a[0] += aux; d -= i * aux;
         }
 
-        printf("%d\n", piles[0]);
+        printf("%d\n", a[0]);
     }
 }
