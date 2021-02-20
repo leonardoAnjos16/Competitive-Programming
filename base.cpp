@@ -11,6 +11,9 @@ using namespace std;
 
 #define heap(ds, cmp) priority_queue<ds, vector<ds>, cmp>
 
+#define all(ds) (ds).begin(), (ds).end()
+#define size(ds) (int) (ds).size()
+
 const int MAX = 2e5 + 5;
 
 int main() {
