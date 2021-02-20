@@ -9,7 +9,6 @@ using namespace std;
 #define fst first
 #define snd second
 
-#define heap(ds) priority_queue<ds>
 #define heap(ds, cmp) priority_queue<ds, vector<ds>, cmp>
 
 const int MAX = 2e5 + 5;
