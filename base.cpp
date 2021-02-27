@@ -9,8 +9,6 @@ using namespace std;
 #define fst first
 #define snd second
 
-#define heap(ds, cmp) priority_queue<ds, vector<ds>, cmp>
-
 #define all(ds) (ds).begin(), (ds).end()
 #define size(ds) (int) (ds).size()
 
