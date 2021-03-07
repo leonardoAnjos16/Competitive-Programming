@@ -12,6 +12,11 @@ using namespace std;
 #define all(ds) (ds).begin(), (ds).end()
 #define size(ds) (int) (ds).size()
 
+#define vi vector<int>
+#define pb push_back
+#define lb lower_bound
+#define ub upper_bound
+
 const int MAX = 2e5 + 5;
 
 int main() {
