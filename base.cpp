@@ -12,6 +12,7 @@ using namespace std;
 #define all(ds) (ds).begin(), (ds).end()
 #define size(ds) (int) (ds).size()
 
+#define pq priority_queue
 #define vi vector<int>
 #define pb push_back
 #define lb lower_bound
