@@ -20,6 +20,32 @@ using namespace std;
 
 const int MAX = 105;
 
+int *sequence(int N, int C) {
+    if (C < N - 1 || C > N * (N + 1) / 2 - 1) return NULL;
+    if (N == 1) {
+        int *ans = new int[1];
+        ans[0] = 1;
+        return ans;
+    }
+
+    for (int i = 0; i < N; i++) {
+        int *nxt = sequence(N - 1, C - i - 1);
+        if (nxt != NULL) {
+            int *ans = new int[N];
+            ans[0] = 1;
+
+            for (int j = 1; j < N; j++)
+                ans[j] = nxt[j - 1] + 1;
+
+            reverse(ans, ans + i + 1);
+            delete [] nxt;
+            return ans;
+        }
+    }
+
+    return NULL;
+}
+
 int main() {
     ios_base::sync_with_stdio(false);
     cin.tie(NULL);
@@ -31,35 +57,14 @@ int main() {
 
         cout << "Case #" << t << ":";
 
-        int ans[MAX];
-        for (int i = 0; i < N; i++)
-            ans[i] = i + 1;
-
-        bool possible = false;
-        do {
-            int A[MAX];
-            for (int i = 0; i < N; i++)
-                A[i] = ans[i];
-
-            int cost = 0;
-            for (int i = 0; i < N - 1; i++) {
-                int idx = i;
-                for (int j = i + 1; j < N; j++)
-                    if (A[j] < A[idx]) idx = j;
-
-                cost += idx - i + 1;
-                reverse(A + i, A + idx + 1);
-            }
-
-            if (cost == C) possible = true;
-        } while (!possible && next_permutation(ans, ans + N));
-
-        if (!possible) cout << " IMPOSSIBLE\n";
+        int *ans = sequence(N, C);
+        if (ans == NULL) cout << " IMPOSSIBLE\n";
         else {
             for (int i = 0; i < N; i++)
                 cout << " " << ans[i];
 
             cout << "\n";
+            delete [] ans;
         }
     }
 }
