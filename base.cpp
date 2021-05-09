@@ -10,11 +10,13 @@ using namespace std;
 #define snd second
 
 #define all(ds) (ds).begin(), (ds).end()
+#define rall(ds) (ds).rbegin(), (ds).rend()
 #define size(ds) (int) (ds).size()
 
 #define pq priority_queue
 #define vi vector<int>
 #define pb push_back
+#define mp make_pair
 #define lb lower_bound
 #define ub upper_bound
 
