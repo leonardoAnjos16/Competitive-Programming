@@ -4,6 +4,10 @@ using namespace std;
 
 #define long long long int
 
+#include <bits/stdc++.h>
+
+using namespace std;
+
 struct TwoSAT {
 private:
     int n;
@@ -110,22 +114,33 @@ int main() {
     ios_base::sync_with_stdio(false);
     cin.tie(NULL);
 
-    int T; cin >> T;
-    while (T--) {
-        int n, m;
-        cin >> n >> m;
+    int n, m;
+    cin >> n >> m;
 
-        TwoSAT solver(n);
-        for (int i = 0; i < m; i++) {
-            int u, v, w;
-            cin >> u >> v >> w;
+    vector<int> r(n);
+    for (int i = 0; i < n; i++)
+        cin >> r[i];
 
-            if (w) solver.add_xor(u - 1, v - 1);
-            else solver.add_or(u - 1, v - 1);
+    vector<vector<int>> switches(n);
+    for (int i = 0; i < m; i++) {
+        int x; cin >> x;
+        while (x--) {
+            int door; cin >> door;
+            switches[door - 1].push_back(i);
         }
-
-        vector<bool> assignment;
-        bool possible = solver.solve(assignment);
-        cout << (possible ? "YES" : "NO") << "\n";
     }
+
+    TwoSAT solver(m);
+    for (int i = 0; i < n; i++) {
+        assert((int) switches[i].size() == 2);
+        int u = switches[i][0];
+        int v = switches[i][1];
+
+        if (r[i]) solver.add_xnor(u, v);
+        else solver.add_xor(u, v);
+    }
+
+    vector<bool> assignment;
+    bool possible = solver.solve(assignment);
+    cout << (possible ? "YES" : "NO") << "\n";
 }
