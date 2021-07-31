@@ -18,13 +18,6 @@ int main() {
         for (int j = 3; j < n + 3; j++)
             ps[i][j] = ps[i][j - 3] + (s[j - 3] - 'a' == i);
 
-    /* for (int i = 0; i < 3; i++) {
-        for (int j = 0; j < n + 3; j++)
-            cout << ps[i][j] << " ";
-
-        cout << "\n";
-    } */
-
     while (m--) {
         int l, r;
         cin >> l >> r;
@@ -34,9 +27,6 @@ int main() {
         string pat = "abc";
 
         do {
-            // l..r
-            // abca
-
             int cnt[3] = {0};
             int sz = r - l + 1;
 
