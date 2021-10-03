@@ -1,25 +1,26 @@
+template<typename T>
 struct MaxFlow {
 private:
     int n;
     vector<vector<int>> g;
-    vector<vector<long>> c;
+    vector<vector<T>> c;
 
 public:
-    MaxFlow(int n, vector<vector<int>> &g, vector<vector<long>> &c) {
+    MaxFlow(int n, vector<vector<int>> &g, vector<vector<T>> &c) {
         this->n = n;
         this->g = g;
         this->c = c;
     }
 
-    MaxFlow(int n, vector<vector<pair<int, long>>> &g) {
+    MaxFlow(int n, vector<vector<pair<int, T>>> &g) {
         this->n = n;
         this->g.assign(n, vector<int>());
-        c.assign(n, vector<long>(n, 0));
+        c.assign(n, vector<T>(n, 0));
 
         for (int i = 0; i < n; i++)
             for (auto p: g[i]) {
                 int v = p.first;
-                long w = p.second;
+                T w = p.second;
 
                 this->g[i].push_back(v);
                 this->g[v].push_back(i);
@@ -27,11 +28,11 @@ public:
             }
     }
 
-    long max_flow(int s, int t) {
+    T max_flow(int s, int t) {
         vector<int> p;
-        long ans = 0LL, flow;
+        T ans = 0, flow;
 
-        while (flow = find_path(s, t, p)) {
+        while ((flow = find_path(s, t, p)) > 0) {
             ans += flow;
 
             int curr = t;
@@ -46,28 +47,29 @@ public:
     }
 
 private:
-    long find_path(int s, int t, vector<int> &p) {
+    T find_path(int s, int t, vector<int> &p) {
         p.assign(n, -1);
         p[s] = s;
 
-        queue<pair<int, long>> aux;
-        aux.emplace(s, LLONG_MAX);
+        queue<pair<int, T>> aux;
+        aux.emplace(s, -1);
 
         while (!aux.empty()) {
             int v = aux.front().first;
-            long flow = aux.front().second;
+            T flow = aux.front().second;
             aux.pop();
 
             for (auto u: g[v])
-                if (p[u] == -1 && c[v][u]) {
+                if (p[u] == -1 && c[v][u] > 0) {
                     p[u] = v;
-                    flow = min(flow, c[v][u]);
+                    if (flow == -1 || c[v][u] < flow)
+                        flow = c[v][u];
 
                     if (u == t) return flow;
                     aux.emplace(u, flow);
                 }
         }
 
-        return 0LL;
+        return 0;
     }
 };
