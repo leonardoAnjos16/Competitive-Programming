@@ -1,4 +1,4 @@
-template<typename T>
+template<typename T = int>
 struct MaxFlow {
 private:
     int n;
@@ -52,7 +52,7 @@ private:
         p[s] = s;
 
         queue<pair<int, T>> aux;
-        aux.emplace(s, -1);
+        aux.emplace(s, numeric_limits<T>::max());
 
         while (!aux.empty()) {
             int v = aux.front().first;
@@ -62,8 +62,7 @@ private:
             for (auto u: g[v])
                 if (p[u] == -1 && c[v][u] > 0) {
                     p[u] = v;
-                    if (flow == -1 || c[v][u] < flow)
-                        flow = c[v][u];
+                    flow = min(flow, c[v][u]);
 
                     if (u == t) return flow;
                     aux.emplace(u, flow);
