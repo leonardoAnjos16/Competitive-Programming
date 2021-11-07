@@ -1,18 +1,19 @@
+template<typename T = int>
 struct Matrix {
     int rows, cols;
-    vector<vector<long>> m;
+    vector<vector<T>> m;
 
     Matrix(int rows, int cols) {
         this->rows = rows;
         this->cols = cols;
-        m.assign(rows, vector<long>(cols, 0LL));
+        m.assign(rows, vector<T>(cols, 0LL));
     }
 
-    Matrix(vector<vector<long>> &m) {
+    Matrix(vector<vector<T>> &m) {
         this->rows = m.size();
         this->cols = m[0].size();
 
-        this->m.assign(rows, vector<long>(cols));
+        this->m.assign(rows, vector<T>(cols));
         for (int i = 0; i < rows; i++)
             for (int j = 0; j < cols; j++)
                 this->m[i][j] = m[i][j];
