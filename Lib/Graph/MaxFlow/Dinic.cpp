@@ -2,13 +2,13 @@ template<typename T = int>
 struct MaxFlow {
 private:
     struct Edge {
-        int to;
+        int from, to;
         T cap, flow;
 
-        Edge(int to, T cap) {
+        Edge(int from, int to, T cap) {
+            this->from = from;
             this->to = to;
             this->cap = cap;
-            this->flow = 0;
         }
     };
 
@@ -26,10 +26,10 @@ public:
     void add_edge(int u, int v, T cap) {
         int m = edges.size();
 
-        edges.push_back(Edge(v, cap));
+        edges.push_back(Edge(u, v, cap));
         ids[u].push_back(m);
 
-        edges.push_back(Edge(u, 0));
+        edges.push_back(Edge(v, u, 0));
         ids[v].push_back(m + 1);
     }
 
@@ -38,6 +38,9 @@ public:
 
         this->src = src;
         this->snk = snk;
+
+        for (auto &e: edges)
+            e.flow = 0;
 
         T ans = 0;
         while (get_depths()) {
@@ -62,7 +65,7 @@ private:
         while (!aux.empty()) {
             int v = aux.front(); aux.pop();
             for (auto id: ids[v]) {
-                auto [u, cap, flow] = edges[id];
+                auto [from, u, cap, flow] = edges[id];
                 if (cap - flow > 0 && depth[u] == -1) {
                     aux.push(u);
                     depth[u] = depth[v] + 1;
