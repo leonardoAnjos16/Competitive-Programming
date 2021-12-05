@@ -1,5 +1,5 @@
 template<typename T = int>
-struct MinCostMaxFlow {
+struct MinCostFlow {
 private:
     struct Edge {
         int from, to;
@@ -14,11 +14,11 @@ private:
     int n, src, snk;
     vector<Edge> edges;
     vector<vector<int>> ids;
-    vector<T> dist, pot;
+    vector<T> dist;
     vector<int> parent;
 
 public:
-    MinCostMaxFlow(int n): n(n) {
+    MinCostFlow(int n): n(n) {
         ids.assign(n, vector<int>());
     }
 
@@ -30,6 +30,22 @@ public:
 
         edges.emplace_back(v, u, 0, -cost);
         ids[v].push_back(m + 1);
+    }
+
+    pair<T, T> min_cost_flow(int src, int snk, int max_flow) {
+        this->src = src;
+        this->snk = snk;
+
+        pair<T, T> ans = make_pair(0, 0);
+        while (ans.first < max_flow && shortest_paths()) {
+            auto [flow, cost] = get_flow_and_cost();
+            T add = min(flow, max_flow - ans.first);
+
+            ans.first += add;
+            ans.second += add * cost;
+        }
+
+        return ans;
     }
 
     pair<T, T> min_cost_max_flow(int src, int snk) {
