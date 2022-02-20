@@ -13,11 +13,12 @@ int main() {
 
     int sum = 0;
     for (int i = 0; i < n; i++) {
-        int c; cin >> c;
+        int c;
+        cin >> c;
         sum += c;
     }
 
-    if (sum == b) cout << "Just enough\n";
-    else if (sum < b) cout << "More funding required\n";
-    else cout << "Success\n";
+    if (sum > b) cout << "Success\n";
+    else if (sum == b) cout << "Just enough\n";
+    else cout << "More funding required\n";
 }
