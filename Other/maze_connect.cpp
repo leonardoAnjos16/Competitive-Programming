@@ -37,8 +37,8 @@ bool touch_sides(int i, int j) {
 }
 
 int main() {
-    // ios_base::sync_with_stdio(false);
-    // cin.tie(NULL);
+    ios_base::sync_with_stdio(false);
+    cin.tie(NULL);
 
     cin >> r >> c;
     r <<= 1;
