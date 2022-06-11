@@ -1,25 +1,19 @@
-template<typename T = int>
+template<typename T = long>
 struct Matrix {
     int rows, cols;
-    vector<vector<T>> m;
+    T m[MAX][MAX];
 
-    Matrix(int rows, int cols) {
-        this->rows = rows;
-        this->cols = cols;
-        m.assign(rows, vector<T>(cols, 0LL));
+    Matrix(int rows, int cols): rows(rows), cols(cols) {
+        memset(m, 0, sizeof m);
     }
 
-    Matrix(vector<vector<T>> &m) {
-        this->rows = m.size();
-        this->cols = m[0].size();
-
-        this->m.assign(rows, vector<T>(cols));
+    Matrix(T m[MAX][MAX], int rows, int cols): rows(rows), cols(cols) {
         for (int i = 0; i < rows; i++)
             for (int j = 0; j < cols; j++)
                 this->m[i][j] = m[i][j];
     }
 
-    Matrix operator *(Matrix other) {
+    Matrix operator *(Matrix &other) {
         Matrix ans(rows, other.cols);
         for (int i = 0; i < rows; i++)
             for (int j = 0; j < other.cols; j++)
