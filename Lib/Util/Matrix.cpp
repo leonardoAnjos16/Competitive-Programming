@@ -24,4 +24,8 @@ struct Matrix {
 
         return ans;
     }
+
+    T* operator [](int row) {
+        return m[row];
+    }
 };
