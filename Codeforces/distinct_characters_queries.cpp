@@ -6,75 +6,66 @@ using namespace std;
 
 const int MAX = 26;
 
-struct SegmentTree {
+vector<int> operator +(vector<int> a, vector<int> b) {
+    vector<int> ans(a.size());
+    for (int i = 0; i < (int) a.size(); i++)
+        ans[i] = a[i] + b[i];
+
+    return ans;
+}
+
+vector<int> operator -(vector<int> a, vector<int> b) {
+    vector<int> ans(a.size());
+    for (int i = 0; i < (int) a.size(); i++)
+        ans[i] = a[i] - b[i];
+
+    return ans;
+}
+
+struct FenwickTree {
 private:
     int n;
-    string s;
     vector<vector<int>> tree;
 
 public:
-    SegmentTree(int n, string &s) {
-        this->n = n;
-        this->s = s;
-
-        tree.assign(4 * n, vector<int>(MAX, 0));
-        build(1, 1, n);
+    FenwickTree(int n) {
+        this->n = n + 1;
+        tree.assign(n + 1, vector<int>(MAX, 0));
     }
 
-    void update(int i, char c) {
-        update(1, 1, n, i, c);
+    void add(int i, char c, int v) {
+        if (!i) tree[0][c - 'a'] += v;
+        else {
+            while (i < n) {
+                tree[i][c - 'a'] += v;
+                i += LSO(i);
+            }
+        }
     }
 
     int query(int l, int r) {
-        vector<int> cnt = query(1, 1, n, l, r);
+        vector<int> cnt = query(r) - query(l - 1);
 
         int ans = 0;
         for (int i = 0; i < MAX; i++)
-            ans += cnt[i] != 0;
+            ans += cnt[i] > 0;
 
         return ans;
     }
 
 private:
-    void merge(int i) {
-        for (int j = 0; j < MAX; j++)
-            tree[i][j] = tree[2 * i][j] + tree[2 * i + 1][j];
+    int LSO(int i) {
+        return i & -i;
     }
 
-    void build(int i, int l, int r) {
-        if (l == r) tree[i][s[l] - 'a'] = 1;
-        else {
-            int m = (l + r) / 2;
-            build(2 * i, l, m);
-            build(2 * i + 1, m + 1, r);
-            merge(i);
+    vector<int> query(int i) {
+        if (i < 0) return vector<int>(MAX, 0);
+
+        vector<int> ans = tree[0];
+        while (i) {
+            ans = ans + tree[i];
+            i -= LSO(i);
         }
-    }
-
-    void update(int i, int l, int r, int j, char c) {
-        if (l == r) {
-            tree[i][s[j] - 'a'] = 0;
-            tree[i][c - 'a'] = 1;
-            s[j] = c;
-        } else {
-            int m = (l + r) / 2;
-            if (j <= m) update(2 * i, l, m, j, c);
-            else update(2 * i + 1, m + 1, r, j, c);
-            merge(i);
-        }
-    }
-
-    vector<int> query(int i, int l, int r, int ql, int qr) {
-        if (r < ql || l > qr) return vector<int>(MAX, 0);
-        if (ql <= l && r <= qr) return tree[i];
-
-        int m = (l + r) / 2;
-        vector<int> left = query(2 * i, l, m, ql, qr);
-        vector<int> right = query(2 * i + 1, m + 1, r, ql, qr);
-
-        vector<int> ans(MAX, 0);
-        for (int i = 0; i < MAX; i++)
-            ans[i] = left[i] + right[i];
 
         return ans;
     }
@@ -86,17 +77,21 @@ int main() {
 
     string s; cin >> s;
     int n = s.size();
-    s = "." + s;
+
+    FenwickTree tree(n);
+    for (int i = 0; i < n; i++)
+        tree.add(i + 1, s[i], 1);
 
     int q; cin >> q;
-    SegmentTree tree(n, s);
-
     while (q--) {
         int op; cin >> op;
         if (op == 1) {
             int pos; char c;
             cin >> pos >> c;
-            tree.update(pos, c);
+
+            tree.add(pos, s[pos - 1], -1);
+            tree.add(pos, c, 1);
+            s[pos - 1] = c;
         } else {
             int l, r;
             cin >> l >> r;
