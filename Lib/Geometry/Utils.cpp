@@ -1,13 +1,9 @@
 const long double EPS = 1e-6;
 
-bool zero(long double n) {
-    return fabsl(n) <= EPS;
+int sign(long x) {
+    return !x ? 0 : (x < 0 ? -1 : 1);
 }
 
-bool positive(long double n) {
-    return n > EPS;
-}
-
-bool negative(long double n) {
-    return n < -EPS;
+int sign(long double x) {
+    return fabsl(x) <= EPS ? 0 : (x < -EPS ? -1 : 1);
 }
