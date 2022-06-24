@@ -49,17 +49,7 @@ public:
     }
 
     pair<T, T> min_cost_max_flow(int src, int snk) {
-        this->src = src;
-        this->snk = snk;
-
-        pair<T, T> ans = make_pair(0, 0);
-        while (shortest_paths()) {
-            auto [flow, cost] = get_flow_and_cost();
-            ans.first += flow;
-            ans.second += flow * cost;
-        }
-
-        return ans;
+        return min_cost_flow(src, snk, numeric_limits<T>::max());
     }
 
 private:
