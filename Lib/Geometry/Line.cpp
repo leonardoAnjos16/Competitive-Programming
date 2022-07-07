@@ -9,7 +9,7 @@ struct Line {
         v = Q - P;
     }
 
-    pair<Point, bool> intersection(Line<T> other) {
+    pair<Point<T>, bool> intersection(Line<T> other) {
         T den = v / other.v;
         if (!sign(den)) return make_pair(Point<T>(), false);
 
