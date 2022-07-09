@@ -35,3 +35,22 @@ vector<Point<T>> convex_hull(vector<Point<T>> &points) {
 
     return hull;
 }
+
+template<typename T = long>
+T area(Point<T> A, Point<T> B, Point<T> C) {
+    return (B - A) / (C - B);
+}
+
+template<typename T = long>
+long double area(vector<Point<T>> &points) {
+    Point<T> O(0, 0);
+    int n = points.size();
+
+    T ans = 0;
+    for (int i = 0; i < n; i++) {
+        Point<T> P = points[i], Q = points[(i + 1) % n];
+        ans += area(O, P, Q);
+    }
+
+    return ans / 2.0L;
+}
