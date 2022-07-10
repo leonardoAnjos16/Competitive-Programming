@@ -1,4 +1,4 @@
-template<typename T = long>
+template<typename T = llong>
 struct Line {
     Point<T> P;
     Vector<T> v;
@@ -22,14 +22,14 @@ struct Line {
     }
 };
 
-template<typename T = long>
+template<typename T = llong>
 bool intersect(T a, T b, T c, T d) {
     if (sign(a - b) > 0) swap(a, b);
     if (sign(c - d) > 0) swap(c, d);
     return sign(max(a, c) - min(b, d)) <= 0;
 }
 
-template<typename T = long>
+template<typename T = llong>
 bool seg_seg(Point<T> A, Point<T> B, Point<T> C, Point<T> D) {
     Vector<T> CA = A - C, CB = B - C, CD = D - C;
     if (!sign(CA / CD) && !sign(CB / CD))

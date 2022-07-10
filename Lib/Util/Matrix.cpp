@@ -1,4 +1,4 @@
-template<typename T = long>
+template<typename T = llong>
 struct Matrix {
     int rows, cols;
     T m[MAX][MAX];

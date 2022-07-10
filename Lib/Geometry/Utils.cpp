@@ -1,6 +1,6 @@
 const long double EPS = 1e-6;
 
-int sign(long x) {
+int sign(llong x) {
     return !x ? 0 : (x < 0 ? -1 : 1);
 }
 

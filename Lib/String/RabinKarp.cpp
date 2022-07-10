@@ -2,7 +2,7 @@ struct RabinKarp {
 private:
     string s;
     int n, base, mod;
-    vector<long> p, h;
+    vector<llong> p, h;
 
 public:
     RabinKarp(string &s, int base = 243, int mod = 1e9 + 7) {

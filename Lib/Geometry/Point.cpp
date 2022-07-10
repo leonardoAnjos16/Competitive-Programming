@@ -1,6 +1,6 @@
 #define Vector Point
 
-template<typename T = long>
+template<typename T = llong>
 struct Point {
     T x, y;
 
@@ -39,12 +39,12 @@ struct Point {
     }
 };
 
-template<typename T = long>
+template<typename T = llong>
 bool left_turn(Vector<T> u, Vector<T> v) {
     return sign(u / v) > 0;
 }
 
-template<typename T = long>
+template<typename T = llong>
 bool right_turn(Vector<T> u, Vector<T> v) {
     return sign(u / v) < 0;
 }

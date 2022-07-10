@@ -1,4 +1,4 @@
-template<typename T = long>
+template<typename T = llong>
 bool inside(vector<Point<T>> &vertices, Point<T> P) {
     int n = vertices.size();
     for (int i = 0; i < n; i++)
@@ -8,7 +8,7 @@ bool inside(vector<Point<T>> &vertices, Point<T> P) {
     return true;
 }
 
-template<typename T = long>
+template<typename T = llong>
 vector<Point<T>> half_hull(vector<Point<T>> &points, int l, int r, int d) {
     vector<Point<T>> hull;
     for (int i = l; i != r; i += d) {
@@ -22,7 +22,7 @@ vector<Point<T>> half_hull(vector<Point<T>> &points, int l, int r, int d) {
     return hull;
 }
 
-template<typename T = long>
+template<typename T = llong>
 vector<Point<T>> convex_hull(vector<Point<T>> &points) {
     int n = points.size();
     sort(points.begin(), points.end());
@@ -36,12 +36,12 @@ vector<Point<T>> convex_hull(vector<Point<T>> &points) {
     return hull;
 }
 
-template<typename T = long>
+template<typename T = llong>
 T area(Point<T> A, Point<T> B, Point<T> C) {
     return (B - A) / (C - B);
 }
 
-template<typename T = long>
+template<typename T = llong>
 long double area(vector<Point<T>> &points) {
     Point<T> O(0, 0);
     int n = points.size();
