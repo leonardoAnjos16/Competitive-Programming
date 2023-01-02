@@ -2,73 +2,72 @@
 
 using namespace std;
 
-#define long long long int
+#define llong long long int
 
-#define pii pair<int, int>
-#define pll pair<long, long>
-#define fst first
-#define snd second
+const int WIN = 0;
+const int LOSE = 1;
 
-#define all(ds) (ds).begin(), (ds).end()
-#define size(ds) (int) (ds).size()
+struct Trie {
+private:
+    int nodes = 1;
+    vector<vector<int>> nxt;
 
-#define pq priority_queue
-#define vi vector<int>
-#define pb push_back
-#define lb lower_bound
-#define ub upper_bound
-
-const int MAX = 2e5 + 5;
-
-int trie[MAX][30], nodes;
-
-void insert(string &s) {
-    int idx = 0, node = 0;
-    while (idx < size(s) && ~trie[node][s[idx] - 'a'])
-        node = trie[node][s[idx++] - 'a'];
-
-    while (idx < size(s)) {
-        node = trie[node][s[idx++] - 'a'] = nodes++;
-        memset(trie[node], -1, sizeof trie[node]);
+public:
+    Trie() {
+        nxt.emplace_back(26, -1);
     }
-}
 
-pair<bool, bool> outcomes(int node = 0) {
-    bool can_play = false;
-    pair<bool, bool> ans = { false, false };
+    void insert(string &s) {
+        int node = 0, idx = 0;
+        while (idx < (int) s.size() && nxt[node][s[idx] - 'a'] != -1)
+            node = nxt[node][s[idx++] - 'a'];
 
-    for (int i = 0; i < 26; i++)
-        if (~trie[node][i]) {
-            can_play = true;
-            auto aux = outcomes(trie[node][i]);
-            ans.fst |= !aux.fst; ans.snd |= !aux.snd;
+        while (idx < (int) s.size()) {
+            nxt[node][s[idx++] - 'a'] = nodes;
+            nxt.emplace_back(26, -1);
+            node = nodes++;
         }
+    }
 
-    if (!can_play)
-        ans.fst = true;
+    bool can_win() {
+        return can(WIN);
+    }
 
-    return ans;
-}
+    bool can_lose() {
+        return can(LOSE);
+    }
+
+private:
+    bool can(int action, int node = 0) {
+        bool leaf = true;
+        for (int i = 0; i < 26 && leaf; i++)
+            if (nxt[node][i] != -1) leaf = false;
+
+        if (leaf) return action == LOSE ? true : false;
+
+        bool ans = false;
+        for (int i = 0; i < 26 && !ans; i++)
+            if (nxt[node][i] != -1 && !can(action, nxt[node][i]))
+                ans = true;
+
+        return ans;
+    }
+};
 
 int main() {
     ios_base::sync_with_stdio(false);
     cin.tie(NULL);
 
-    nodes = 1;
-    memset(trie[0], -1, sizeof trie[0]);
-
     int n, k;
     cin >> n >> k;
 
+    Trie tree;
     for (int i = 0; i < n; i++) {
-        string s;
-        cin >> s;
-        insert(s);
+        string s; cin >> s;
+        tree.insert(s);
     }
 
-    pll ans = outcomes();
-    if (ans.fst && ans.snd) cout << "First\n";
-    else if (!ans.snd) cout << "Second\n";
-    else if (k & 1) cout << "First\n";
+    if (tree.can_win() && tree.can_lose()) cout << "First\n";
+    else if (tree.can_win() && (k & 1)) cout << "First\n";
     else cout << "Second\n";
 }
