@@ -1,6 +1,6 @@
 #define Vector Point
 
-template<typename T = llong>
+template<typename T>
 struct Point {
     T x, y;
 
@@ -39,12 +39,28 @@ struct Point {
     }
 };
 
-template<typename T = llong>
+template<typename T>
+long double abs(Vector<T> v) {
+    return sqrtl(v * v);
+}
+
+template<typename T>
+long double angle(Vector<T> u, Vector<T> v) {
+    return acosl(u * v / abs(u) / abs(v));
+}
+
+template<typename T>
 bool left_turn(Vector<T> u, Vector<T> v) {
     return sign(u / v) > 0;
 }
 
-template<typename T = llong>
+template<typename T>
 bool right_turn(Vector<T> u, Vector<T> v) {
     return sign(u / v) < 0;
+}
+
+template<typename T>
+long double oriented_angle(Vector<T> u, Vector<T> v) {
+    if (!right_turn(u, v)) return angle(u, v);
+    return 2 * PI - angle(u, v);
 }
