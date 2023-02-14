@@ -2,11 +2,10 @@ template<typename T = int>
 struct MaxFlow {
 private:
     struct Edge {
-        int from, to;
-        T cap, flow;
+        int to;
+        T cap;
 
-        Edge(int from, int to, T cap) {
-            this->from = from;
+        Edge(int to, T cap) {
             this->to = to;
             this->cap = cap;
         }
@@ -26,10 +25,10 @@ public:
     void add_edge(int u, int v, T cap) {
         int m = edges.size();
 
-        edges.push_back(Edge(u, v, cap));
+        edges.push_back(Edge(v, cap));
         ids[u].push_back(m);
 
-        edges.push_back(Edge(v, u, 0));
+        edges.push_back(Edge(u, 0));
         ids[v].push_back(m + 1);
     }
 
@@ -38,9 +37,6 @@ public:
 
         this->src = src;
         this->snk = snk;
-
-        for (auto &e: edges)
-            e.flow = 0;
 
         T ans = 0;
         while (get_depths()) {
@@ -65,10 +61,10 @@ private:
         while (!aux.empty()) {
             int v = aux.front(); aux.pop();
             for (auto id: ids[v]) {
-                auto [from, u, cap, flow] = edges[id];
-                if (cap - flow > 0 && depth[u] == -1) {
-                    aux.push(u);
-                    depth[u] = depth[v] + 1;
+                Edge &e = edges[id];
+                if (e.cap > 0 && depth[e.to] == -1) {
+                    aux.push(e.to);
+                    depth[e.to] = depth[v] + 1;
                 }
             }
         }
@@ -81,17 +77,19 @@ private:
         if (v == snk) return flow;
 
         while (first[v] < (int) ids[v].size()) {
-            int id = ids[v][first[v]++];
-            Edge e = edges[id];
+            int id = ids[v][first[v]];
+            Edge &e = edges[id];
 
             if (depth[e.to] == depth[v] + 1) {
-                T curr = find_path(e.to, min(flow, e.cap - e.flow));
+                T curr = find_path(e.to, min(flow, e.cap));
                 if (curr > 0) {
-                    edges[id].flow += curr;
-                    edges[id ^ 1].flow -= curr;
+                    edges[id].cap -= curr;
+                    edges[id ^ 1].cap += curr;
                     return curr;
                 }
             }
+
+            first[v]++;
         }
 
         return 0;
