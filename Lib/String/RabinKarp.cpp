@@ -15,16 +15,6 @@ public:
         build();
     }
 
-    RabinKarp(int n, string &s, int base = 243, int mod = 1e9 + 7) {
-        this->s = s;
-        this->n = n;
-
-        this->base = base;
-        this->mod = mod;
-
-        build();
-    }
-
     int hash(int l, int r) {
         if (!l) return h[r];
         return (h[r] - ((h[l - 1] * p[r - l + 1]) % mod) + mod) % mod;
