@@ -64,3 +64,14 @@ long double oriented_angle(Vector<T> u, Vector<T> v) {
     if (!right_turn(u, v)) return angle(u, v);
     return 2 * PI - angle(u, v);
 }
+
+template<typename T>
+Vector<T> proj(Vector<T> u, Vector<T> v) {
+    return v * ((u * v) / (v * v));
+}
+
+template<typename T>
+Point<T> proj_line(Point<T> P, Point<T> A, Point<T> B) {
+    Vector<T> u = P - A, v = B - A;
+    return A + proj(u, v);
+}
