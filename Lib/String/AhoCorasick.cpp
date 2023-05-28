@@ -1,14 +1,19 @@
-template<typename T = string, const int SIZE = 26, const int OFFSET = 'a'>
+template<typename T = string, typename U = char, const int SIZE = 26, const int OFFSET = 'a'>
 struct AhoCorasick {
 private:
     struct Node {
         int nxt[SIZE];
         int link, slink, id;
+        int parent;
+        U label;
 
-        Node() {
-            memset(nxt, 0, sizeof nxt);
-            link = slink = 0;
-            id = -1;
+        Node(int parent = -1, U label = '-'): parent(parent), label(label) {
+            memset(nxt, -1, sizeof nxt);
+            link = slink = id = -1;
+        }
+
+        int& operator [](U label) {
+            return nxt[label - OFFSET];
         }
     };
 
@@ -23,61 +28,50 @@ public:
     }
 
     void insert(T &pattern) {
-        int on = 0;
+        int node = 0;
         for (int i = 0; i < (int) pattern.size(); i++) {
-            int idx = pattern[i] - OFFSET;
-            if (!nodes[on].nxt[idx]) {
-                nodes[on].nxt[idx] = size++;
-                nodes.emplace_back();
+            if (nodes[node][pattern[i]] == -1) {
+                nodes[node][pattern[i]] = size++;
+                nodes.emplace_back(node, pattern[i]);
             }
 
-            on = nodes[on].nxt[idx];
+            node = nodes[node][pattern[i]];
         }
 
-        nodes[on].id = patterns++;
+        nodes[node].id = patterns++;
     }
 
-    vector<vector<int>> get_matches(T &text) {
-        build();
-
-        int on = 0;
-        vector<vector<int>> matches(text.size(), vector<int>());
-
-        for (int i = 0; i < (int) text.size(); i++) {
-            on = nodes[on].nxt[text[i] - OFFSET];
-            Node &node = nodes[on];
-
-            if (node.id != -1)
-                matches[i].push_back(node.id);
-
-            int curr = node.slink;
-            while (curr) {
-                matches[i].push_back(nodes[curr].id);
-                curr = nodes[curr].slink;
-            }
-        }
-
-        return matches;
+    int id(int node) {
+        return nodes[node].id;
     }
 
-private:
-    void build() {
-        queue<int> q;
-        q.push(0);
-
-        while (!q.empty()) {
-            int on = q.front(); q.pop();
-            Node &node = nodes[on];
-
-            node.slink = nodes[node.link].id != -1 ? node.link : nodes[node.link].slink;
-            for (int i = 0; i < SIZE; i++) {
-                if (!node.nxt[i]) node.nxt[i] = nodes[node.link].nxt[i];
-                else {
-                    int to = node.nxt[i];
-                    nodes[to].link = (on ? nodes[node.link].nxt[i] : 0);
-                    q.push(to);
-                }
-            }
+    int next(int node, U label) {
+        if (nodes[node][label] == -1) {
+            if (!node) nodes[node][label] = 0;
+            else nodes[node][label] = next(next_suffix(node), label);
         }
+
+        return nodes[node][label];
+    }
+
+    int next_suffix(int node) {
+        if (!node || !nodes[node].parent) return 0;
+
+        if (nodes[node].link == -1)
+            nodes[node].link = next(next_suffix(nodes[node].parent), nodes[node].label);
+
+        return nodes[node].link;
+    }
+
+    int next_terminal(int node) {
+        if (!node || !nodes[node].parent) return 0;
+
+        if (nodes[node].slink == -1) {
+            nodes[node].slink = next_suffix(node);
+            if (nodes[node].slink && nodes[nodes[node].slink].id == -1)
+                nodes[node].slink = next_terminal(nodes[node].slink);
+        }
+
+        return nodes[node].slink;
     }
 };
