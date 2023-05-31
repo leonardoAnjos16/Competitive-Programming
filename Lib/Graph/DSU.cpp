@@ -25,3 +25,34 @@ public:
         ds[j] = i;
     }
 };
+
+struct PersistentDSU {
+private:
+    int n;
+    vector<int> ds, sz, tm;
+
+public:
+    PersistentDSU(int n) {
+        this->n = n;
+        sz.assign(n, 1);
+        tm.assign(n, 0);
+
+        ds.resize(n);
+        iota(ds.begin(), ds.end(), 0);
+    }
+
+    int find(int i, int t = INT_MAX) {
+        if (ds[i] == i || tm[i] > t) return i;
+        return find(ds[i], t);
+    }
+
+    void join(int i, int j, int t) {
+        i = find(i); j = find(j);
+        if (i == j) return;
+
+        if (sz[i] > sz[j]) swap(i, j);
+        sz[j] += sz[i];
+        ds[i] = j;
+        tm[i] = t;
+    }
+};
