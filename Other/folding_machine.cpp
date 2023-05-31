@@ -8,11 +8,6 @@ int N, M;
 vector<int> input, output;
 
 bool possible() {
-    /* for (int i = 0; i < (int) input.size(); i++)
-        cout << input[i] << " ";
-
-    cout << "\n"; */
-
     if ((int) input.size() < M) return false;
     if ((int) input.size() == M) {
         bool equal = true;
