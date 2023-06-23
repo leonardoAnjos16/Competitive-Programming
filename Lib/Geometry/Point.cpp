@@ -4,8 +4,7 @@ template<typename T>
 struct Point {
     T x, y;
 
-    Point(): x(0), y(0) {}
-    Point(T x, T y): x(x), y(y) {}
+    Point(T x = 0, T y = 0): x(x), y(y) {}
 
     Vector<T> operator -() {
         return Vector<T>(-x, -y);
