@@ -2,8 +2,8 @@ struct HLD {
 private:
     int n;
     vector<vector<int>> tree;
-    vector<int> depth, head, heavy, parent, pos;
-    FenwickTree helper;
+    vector<int> depth, head, heavy, parent;
+    vector<int> tin, tout;
 
 public:
     HLD(int n) {
@@ -23,30 +23,30 @@ public:
 
         init(root);
 
-        int idx = 1;
+        int t = 1;
         head.resize(n);
-        pos.resize(n);
+        tin.resize(n);
+        tout.resize(n);
 
-        decompose(root, root, idx);
-
-        helper.init(n);
+        decompose(root, root, t);
     }
 
-    void update(int node, int v) {
-        helper.update(pos[node], v);
-    }
-
-    int query(int u, int v) {
-        int ans = 0;
+    vector<pair<int, int>> get_path(int u, int v) {
+        vector<pair<int, int>> ranges;
         while (head[u] != head[v]) {
             if (depth[head[u]] > depth[head[v]]) swap(u, v);
-            ans += helper.query(pos[head[v]], pos[v]);
+            ranges.emplace_back(tin[head[v]], tin[v]);
             v = parent[head[v]];
         }
 
         if (depth[u] > depth[v]) swap(u, v);
-        ans += helper.query(pos[u], pos[v]);
-        return ans;
+        ranges.emplace_back(tin[u], tin[v]);
+
+        return ranges;
+    }
+
+    pair<int, int> get_subtree(int node) {
+        return make_pair(tin[node], tout[node] - 1);
     }
 
 private:
@@ -68,15 +68,17 @@ private:
         return size;
     }
 
-    void decompose(int node, int h, int &idx) {
+    void decompose(int node, int h, int &t) {
         head[node] = h;
-        pos[node] = idx++;
+        tin[node] = t++;
 
         if (heavy[node] != -1)
-            decompose(heavy[node], h, idx);
+            decompose(heavy[node], h, t);
 
         for (int child: tree[node])
             if (child != parent[node] && child != heavy[node])
-                decompose(child, child, idx);
+                decompose(child, child, t);
+
+        tout[node] = t;
     }
 };
