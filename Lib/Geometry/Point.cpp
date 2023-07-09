@@ -74,3 +74,21 @@ Point<T> proj_line(Point<T> P, Point<T> A, Point<T> B) {
     Vector<T> u = P - A, v = B - A;
     return A + proj(u, v);
 }
+
+template<typename T>
+bool k_lines(vector<Point<T>> points, int k) {
+    if (!k) return points.empty();
+    if ((int) points.size() <= k) return true;
+
+    for (int i = 0; i <= k; i++)
+        for (int j = i + 1; j <= k; j++) {
+            vector<Point<T>> rem;
+            for (Point<T> P: points)
+                if ((P - points[i]) / (points[j] - points[i]))
+                    rem.push_back(P);
+
+            if (k_lines(rem, k - 1)) return true;
+        }
+
+    return false;
+}
