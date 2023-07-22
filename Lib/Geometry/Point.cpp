@@ -30,6 +30,11 @@ struct Point {
         return x * other.y - y * other.x;
     }
 
+    template<typename U>
+    operator Point<U>() const {
+        return Point<U>(U(x), U(y));
+    }
+
     bool operator <(const Point<T> &other) const {
         if (!sign(x - other.x))
             return sign(y - other.y) < 0;
