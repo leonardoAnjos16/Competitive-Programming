@@ -3,11 +3,7 @@ struct Line {
     Point<T> P;
     Vector<T> v;
 
-    Line(Point<T> P, Point<T> Q) {
-        if (Q < P) swap(P, Q);
-        this->P = P;
-        v = Q - P;
-    }
+    Line(Point<T> P, Vector<T> v): P(P), v(v) {}
 
     pair<Point<T>, bool> intersection(Line<T> other) {
         T den = v / other.v;
@@ -15,10 +11,6 @@ struct Line {
 
         T t = ((other.P - P) / other.v) / den;
         return make_pair(P + v * t, true);
-    }
-
-    bool contains(Point<T> Q) {
-        return !sign((Q - P) / v);
     }
 };
 
@@ -55,6 +47,16 @@ vector<Point<T>> circle_line(Point<T> C, T r, Point<T> A, Point<T> B) {
     }
 
     return intersections;
+}
+
+template<typename T>
+vector<Point<T>> circle_seg(Point<T> C, T r, Point<T> A, Point<T> B) {
+    vector<Point<T>> intersections = circle_line(C, r, A, B), nintersections;
+    for (Point<T> P: intersections)
+        if (between(P, A, B))
+            nintersections.push_back(P);
+
+    return nintersections;
 }
 
 template<typename T>
