@@ -1,14 +1,4 @@
 template<typename T = llong>
-bool inside(vector<Point<T>> &vertices, Point<T> P) {
-    int n = vertices.size();
-    for (int i = 0; i < n; i++)
-        if (left_turn(vertices[(i + 1) % n] - vertices[i], P - vertices[i]))
-            return false;
-
-    return true;
-}
-
-template<typename T = llong>
 vector<Point<T>> half_hull(vector<Point<T>> &points, int l, int r, int d) {
     vector<Point<T>> hull;
     for (int i = l; i != r; i += d) {
@@ -34,6 +24,70 @@ vector<Point<T>> convex_hull(vector<Point<T>> &points) {
         hull.push_back(lower[i]);
 
     return hull;
+}
+
+// Splits convex hull into upper and lower hull both sorted by x
+template<typename T>
+pair<vector<Point<T>>, vector<Point<T>>> split(vector<Point<T>> &hull) {
+    auto first = min_element(hull.begin(), hull.end());
+    auto last = max_element(hull.begin(), hull.end());
+
+    if (first > last) {
+        reverse(hull.begin(), hull.end());
+        first = min_element(hull.begin(), hull.end());
+        last = max_element(hull.begin(), hull.end());
+    }
+
+    vector<Point<T>> lower(first, last + 1);
+    vector<Point<T>> upper(last, hull.end());
+
+    for (auto it = hull.begin(); it != first; it++)
+        upper.push_back(*it);
+
+    upper.push_back(*first);
+    reverse(upper.begin(), upper.end());
+
+    bool should_swap = false;
+    for (int i = 2; i < (int) lower.size() && !should_swap; i++)
+        if (right_turn(lower[i - 1] - lower[i - 2], lower[i] - lower[i - 1]))
+            should_swap = true;
+
+    for (int i = 2; i < (int) upper.size() && !should_swap; i++)
+        if (left_turn(upper[i - 1] - upper[i - 2], upper[i] - upper[i - 1]))
+            should_swap = true;
+
+    if (should_swap) lower.swap(upper);
+    return make_pair(upper, lower);
+}
+
+// Checks if P lies inside convex polygon in O(n)
+template<typename T>
+bool inside(vector<Point<T>> &vertices, Point<T> P) {
+    int n = vertices.size();
+    for (int i = 0; i < n; i++)
+        if (left_turn(vertices[(i + 1) % n] - vertices[i], P - vertices[i]))
+            return false;
+
+    return true;
+}
+
+// Checks if P lies inside convex polygon in O(log n) (requires upper and lower hull)
+template<typename T>
+bool inside(vector<Point<T>> &upper, vector<Point<T>> &lower, Point<T> P) {
+    int iu = upper_bound(upper.begin(), upper.end(), P) - upper.begin();
+    int il = upper_bound(lower.begin(), lower.end(), P) - lower.begin();
+
+    if (!iu || !il) return false;
+    if (iu >= (int) upper.size() && P.x > upper.back().x) return false;
+    if (il >= (int) lower.size() && P.x > lower.back().x) return false;
+
+    if (iu >= (int) upper.size()) iu--;
+    if (il >= (int) lower.size()) il--;
+
+    if (left_turn(upper[iu] - upper[iu - 1], P - upper[iu - 1])) return false;
+    if (left_turn(P - lower[il - 1], lower[il] - lower[il - 1])) return false;
+
+    return true;
 }
 
 template<typename T>
@@ -74,7 +128,7 @@ int max_dot_product(vector<Point<T>> &hull, Vector<T> v) {
 
 template<typename T = llong>
 T area(Point<T> A, Point<T> B, Point<T> C) {
-    return (B - A) / (C - B);
+    return (B - A) / (C - A);
 }
 
 template<typename T = llong>
