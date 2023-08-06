@@ -35,11 +35,23 @@ struct Point {
         return Point<U>(U(x), U(y));
     }
 
+    // Useful for convex hull
     bool operator <(const Point<T> &other) const {
         if (!sign(x - other.x))
             return sign(y - other.y) < 0;
 
         return sign(x - other.x) < 0;
+    }
+
+    bool up() const {
+        if (sign(y) > 0) return true;
+        return sign(x) >= 0;
+    }
+
+    // Useful for polar sort (need to make cross operator const)
+    bool operator <(Vector<T> const &other) const {
+        if (up() != other.up()) return up();
+        return sign(*this / other) > 0;
     }
 };
 
