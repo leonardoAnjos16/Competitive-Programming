@@ -45,6 +45,7 @@ struct Point {
 
     bool up() const {
         if (sign(y) > 0) return true;
+        if (sign(y) < 0) return false;
         return sign(x) >= 0;
     }
 
