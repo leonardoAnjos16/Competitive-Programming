@@ -2,33 +2,24 @@
 
 using namespace std;
 
+#define ldouble long double
 #define Vector Point
 
-const long double EPS = 1e-6;
+const ldouble EPS = 1e-9;
+const ldouble INF = 1e9 + 5;
 
-int sign(long double x) {
-    return fabsl(x) <= EPS ? 0 : (x < -EPS ? -1 : 1);
+int sign(ldouble x) {
+    return fabsl(x) < EPS ? 0 : (x < 0 ? -1 : 1);
 }
 
-template<typename T = long long int>
+template<typename T>
 struct Point {
     T x, y;
 
-    Point(): x(0), y(0) {}
-    Point(T x, T y): x(x), y(y) {}
+    Point(T x = 0, T y = 0): x(x), y(y) {}
 
-    T abs() {
-        return *this * *this;
-    }
-
-    void norm() {
-        long double size = sqrtl(abs());
-        x /= size;
-        y /= size;
-    }
-
-    Vector<T> operator -() {
-        return Vector<T>(-x, -y);
+    Vector<T> operator *(T k) {
+        return Vector<T>(x * k, y * k);
     }
 
     Point<T> operator +(Vector<T> v) {
@@ -36,61 +27,71 @@ struct Point {
     }
 
     Vector<T> operator -(Point<T> other) {
-        return Point<T>(x - other.x, y - other.y);
-    }
-
-    Vector<T> operator *(T k) {
-        return Vector<T>(x * k, y * k);
+        return Vector<T>(x - other.x, y - other.y);
     }
 
     T operator *(Vector<T> other) {
         return x * other.x + y * other.y;
     }
-
-    T operator /(Vector<T> other) {
-        return x * other.y - y * other.x;
-    }
-
-    bool operator <(const Point<T> &other) const {
-        if (!sign(x - other.x))
-            return sign(y - other.y) < 0;
-
-        return sign(x - other.x) < 0;
-    }
 };
 
-template<typename T = long long int>
 struct Line {
-    Point<T> P;
-    Vector<T> v;
+    ldouble m, b;
 
-    Line(Point<T> P, Point<T> Q) {
-        if (Q < P) swap(P, Q);
-        this->P = P;
-        v = Q - P;
-    }
+    Line(ldouble m, ldouble b): m(m), b(b) {}
 
-    pair<Point<T>, bool> intersection(Line<T> other) {
-        T den = v / other.v;
-        if (!sign(den)) return make_pair(Point<T>(), false);
-
-        T t = ((other.P - P) / other.v) / den;
-        return make_pair(P + v * t, true);
-    }
-
-    bool contains(Point<T> Q) {
-        return !sign((Q - P) / v);
+    ldouble get_y(ldouble x) {
+        return m * x + b;
     }
 };
 
-template<typename T = long long int>
-bool left_turn(Vector<T> u, Vector<T> v) {
-    return sign(u / v) > 0;
+template<typename T>
+ldouble abs(Vector<T> v) {
+    return sqrtl(v * v);
 }
 
-template<typename T = long long int>
-bool right_turn(Vector<T> u, Vector<T> v) {
-    return sign(u / v) < 0;
+template<typename T>
+Vector<T> get_normal(Point<T> P, Point<T> Q) {
+    Vector<T> v = Q - P;
+    ldouble len = abs(v);
+    return Vector<T>(-v.y / len, v.x / len);
+}
+
+ldouble diff(vector<Line> &lower, vector<Line> &upper, ldouble x) {
+    ldouble mxy = -INF;
+    for (Line &line: lower)
+        mxy = max(mxy, line.get_y(x));
+
+    ldouble mny = INF;
+    for (Line &line: upper)
+        mny = min(mny, line.get_y(x));
+
+    return mny - mxy;
+}
+
+bool intersect(vector<Line> &lower, vector<Line> &upper, ldouble l, ldouble r) {
+    if (sign(l - r) > 0) return false;
+
+    for (int i = 0; i < 200; i++) {
+        ldouble m1 = l + (r - l) / 3.0L;
+        ldouble m2 = r - (r - l) / 3.0L;
+
+        ldouble d1 = diff(lower, upper, m1);
+        ldouble d2 = diff(lower, upper, m2);
+
+        if (sign(d1 - d2) < 0) l = m1;
+        else r = m2;
+    }
+
+    return sign(diff(lower, upper, l)) >= 0;
+}
+
+template<typename T>
+istream& operator >>(istream &cin, Point<T> &P) {
+    T x, y;
+    cin >> x >> y;
+    P = Point<T>(x, y);
+    return cin;
 }
 
 int main() {
@@ -101,63 +102,43 @@ int main() {
 
     int n; cin >> n;
 
-    vector<Point<long double>> vertices(n);
-    for (int i = 0; i < n; i++) {
-        int x, y;
-        cin >> x >> y;
-        vertices[i] = Point<long double>(x, y);
-    }
+    vector<Point<ldouble>> points(n);
+    for (int i = 0; i < n; i++)
+        cin >> points[i];
 
-    vector<Vector<long double>> normal(n);
-    for (int i = 0; i < n; i++) {
-        Vector<long double> v = vertices[(i + 1) % n] - vertices[i];
-        normal[i] = Vector<long double>(-v.y, v.x);
-        normal[i].norm();
-    }
+    ldouble l = 0.0L, r = INF, ans = 0.0L;
+    for (int i = 0; i < 200; i++) {
+        ldouble mid = (l + r) / 2.0L;
 
-    long double l = 0, r = 1e8;
-    for (int i = 0; i < 60; i++) {
-        long double mid = (l + r) / 2.0L;
-
-        vector<Point<long double>> polygon;
-        polygon.emplace_back(1e9, 1e9);
-        polygon.emplace_back(-1e9, 1e9);
-        polygon.emplace_back(-1e9, -1e9);
-        polygon.emplace_back(1e9, -1e9);
+        vector<Line> lower, upper;
+        ldouble lx = -INF, rx = INF;
 
         for (int j = 0; j < n; j++) {
-            Point<long double> A = vertices[j] + normal[j] * mid;
-            Point<long double> B = vertices[(j + 1) % n] + normal[j] * mid;
+            Point<ldouble> P = points[j], Q = points[(j + 1) % n];
+            Vector<ldouble> normal = get_normal(P, Q);
 
-            int size = polygon.size();
-            vector<Point<long double>> new_polygon;
+            P = P + normal * mid;
+            Q = Q + normal * mid;
 
-            for (int k = 0; k < (int) polygon.size(); k++) {
-                Point<long double> C = polygon[k];
-                Point<long double> D = polygon[(k + 1) % size];
+            if (sign(P.x - Q.x) == 0) {
+                if (sign(P.y - Q.y) > 0) lx = max(lx, P.x);
+                else rx = min(rx, Q.x);
+            } else {
+                // P.y = m * P.x + b
+                // Q.y = m * Q.x + b
+                // 2b = P.y + Q.y - m * (P.x + Q.x)
 
-                if (left_turn(B - A, C - A)) {
-                    new_polygon.push_back(C);
-                    if (!left_turn(B - A, D - A)) {
-                        Line s(A, B), t(C, D);
-                        auto [P, has_intersection] = s.intersection(t);
-                        new_polygon.push_back(P);
-                    }
-                } else if (!right_turn(B - A, D - A)) {
-                    Line s(A, B), t(C, D);
-                    auto [P, has_intersection] = s.intersection(t);
-                    new_polygon.push_back(P);
-                }
+                ldouble m = (Q.y - P.y) / (Q.x - P.x);
+                ldouble b = (P.y + Q.y - m * (P.x + Q.x)) / 2.0L;
+
+                if (sign(P.x - Q.x) < 0) lower.emplace_back(m, b);
+                else upper.emplace_back(m, b);
             }
-
-            polygon = new_polygon;
         }
 
-        int size = polygon.size();
-        if (!size) r = mid;
-        else l = mid;
+        if (!intersect(lower, upper, lx, rx)) r = mid;
+        else l = ans = mid;
     }
 
-    long double ans = (l + r) / 2.0L;
     cout << ans << "\n";
 }
