@@ -1,121 +1,131 @@
 struct SuffixArray {
 private:
-    int n, m;
-    string text;
-    vector<int> pstart;
-    vector<int> rank, suffixes, lcp;
-    SparseTable table;
-    vector<int> ps;
+  const int SEP = 300;
+
+  int n, m, sep, text[MAX];
+  vector<int> p, c, lcp, pstart, ps;
+  SparseTable table;
 
 public:
-    SuffixArray(string text): text(text), m(text.size()) {}
+  SuffixArray(string &s) {
+    n = 0;
+    sep = SEP;
+    m = s.size();
+    add(s);
+  }
 
-    void add_pattern(string pattern) {
-        n = text.size();
-        text += "|" + pattern;
-        pstart.push_back(n + 1);
+  void add(string &s) {
+    if (n) {
+      text[n++] = sep++;
+      pstart.push_back(n);
     }
 
-    void build() {
-        text += '$';
-        n = text.size();
+    for (char c: s) text[n++] = c;
+  }
 
-        vector<pair<char, int>> letters(n);
-        for (int i = 0; i < n; i++)
-            letters[i] = make_pair(text[i], i);
+  void build() {
+    text[n++] = 0;
 
-        sort(letters.begin(), letters.end());
+    p.resize(n);
+    c.resize(n);
 
-        int idx = 0;
-        rank.resize(n);
-        suffixes.resize(n);
-
-        for (int i = 0; i < n; i++) {
-            if (i && letters[i].first > letters[i - 1].first) idx++;
-            suffixes[i] = letters[i].second;
-            rank[suffixes[i]] = idx;
-        }
-
-        for (int p = 1; p < 2 * n; p <<= 1) {
-            idx = -1;
-            int end = 0;
-            vector<int> nrank(n);
-
-            while (end < n) {
-                int begin = end++;
-                while (end < n && rank[suffixes[end]] == rank[suffixes[end - 1]]) end++;
-
-                vector<pair<int, int>> order(end - begin);
-                for (int i = begin; i < end; i++)
-                    order[i - begin] = make_pair(rank[(suffixes[i] + p) % n], suffixes[i]);
-
-                sort(order.begin(), order.end());
-                for (int i = begin; i < end; i++) {
-                    if (i == begin || order[i - begin].first > order[i - begin - 1].first) idx++;
-                    suffixes[i] = order[i - begin].second;
-                    nrank[suffixes[i]] = idx;
-                }
-            }
-
-            rank = nrank;
-        }
-
-        for (int i = 1; i < n; i++)
-            assert(rank[suffixes[i]] > rank[suffixes[i - 1]]);
-
-        ps.assign(n, 0);
-        ps[0] = suffixes[0] < m;
-
-        for (int i = 1; i < n; i++)
-            ps[i] = ps[i - 1] + (suffixes[i] < m);
-
-        build_lcp();
+    for (int i = 0; i < n; i++) {
+      p[i] = i;
+      c[i] = text[i];
     }
 
-    int matches(int l, int r, int pattern = 0) {
-        int sz = r - l + 1;
-        int idx = rank[pstart[pattern] + l];
+    sort();
+    get_classes(0);
 
-        l = idx;
-        int lo = 1, hi = idx;
+    for (int len = 1; c[p[n - 1]] + 1 < n; len <<= 1) {
+      for (int i = 0; i < n; i++) {
+        p[i] -= len;
+        p[i] = (p[i] % n + n) % n;
+      }
 
-        while (lo <= hi) {
-            int mid = (lo + hi) / 2;
-            if (table.get_min(idx - mid, idx - 1) < sz) hi = mid - 1;
-            else lo = mid + 1, l = idx - mid;
-        }
-
-        r = idx;
-        lo = 1; hi = n - idx - 1;
-
-        while (lo <= hi) {
-            int mid = (lo + hi) / 2;
-            if (table.get_min(idx, idx + mid - 1) < sz) hi = mid - 1;
-            else lo = mid + 1, r = idx + mid;
-        }
-
-        assert(l);
-        return ps[r] - ps[l - 1];
+      sort();
+      get_classes(len);
     }
+
+    ps.assign(n, 0);
+    ps[0] = p[0] < m;
+
+    for (int i = 1; i < n; i++)
+      ps[i] = ps[i - 1] + (p[i] < m);
+
+    build_lcp();
+  }
+
+  int matches(int l, int r, int pattern = 0) {
+    int sz = r - l + 1;
+    int idx = c[pstart[pattern] + l];
+
+    l = idx - max_equal(1, idx, [&](int mid) {
+        return table.get_min(idx - mid, idx - 1) >= sz;
+    });
+
+    r = idx + max_equal(1, n - idx - 1, [&](int mid) {
+        return table.get_min(idx, idx + mid - 1) >= sz;
+    });
+
+    assert(l);
+    return ps[r] - ps[l - 1];
+  }
 
 private:
-    void build_lcp() {
-        int pref = 0;
-        lcp.assign(n, 0);
+  void sort() {
+    int mx = *max_element(c.begin(), c.end());
+    vector<int> cnt(mx + 1, 0);
 
-        for (int i = 0; i < n; i++) {
-            if (rank[i] + 1 >= n) {
-                pref = 0;
-                continue;
-            }
+    for (int i = 0; i < n; i++)
+      cnt[c[p[i]]]++;
 
-            int nxt = suffixes[rank[i] + 1];
-            while (text[i + pref] == text[nxt + pref]) pref++;
+    for (int i = 1; i <= mx; i++)
+      cnt[i] += cnt[i - 1];
 
-            lcp[rank[i]] = pref;
-            if (pref) pref--;
-        }
+    vector<int> np(n);
+    for (int i = n - 1; i >= 0; i--)
+      np[--cnt[c[p[i]]]] = p[i];
 
-        table = SparseTable(lcp);
+    p.swap(np);
+  }
+
+  void get_classes(int len) {
+    vector<int> nc(n, 0);
+    for (int i = 1; i < n; i++)
+      nc[p[i]] = c[p[i]] == c[p[i - 1]] && c[(p[i] + len) % n] == c[(p[i - 1] + len) % n] ? nc[p[i - 1]] : nc[p[i - 1]] + 1;
+
+    c.swap(nc);
+  }
+
+  void build_lcp() {
+    int pref = 0;
+    lcp.assign(n - 1, 0);
+
+    for (int i = 0; i < n; i++) {
+      if (c[i] + 1 >= n) {
+        pref = 0;
+        continue;
+      }
+
+      int nxt = p[c[i] + 1];
+      while (text[i + pref] == text[nxt + pref]) pref++;
+
+      lcp[c[i]] = pref;
+      if (pref) pref--;
     }
+
+    table = SparseTable(lcp);
+  }
+
+  int max_equal(int l, int r, function<bool(int)> check) {
+    int ans = 0;
+    while (l <= r) {
+        int mid = (l + r) / 2;
+        if (!check(mid)) r = mid - 1;
+        else l = mid + 1, ans = mid;
+    }
+
+    return ans;
+  }
 };
