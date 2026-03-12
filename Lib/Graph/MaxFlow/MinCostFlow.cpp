@@ -1,11 +1,12 @@
-template<typename T = int>
+template<typename T, typename U>
 struct MinCostFlow {
 private:
     struct Edge {
         int from, to;
-        T cap, cost, flow;
+        T cap, flow;
+        U cost;
 
-        Edge(int from, int to, T cap, T cost):
+        Edge(int from, int to, T cap, U cost):
             from(from), to(to), cap(cap), cost(cost), flow(0) {}
     };
 
@@ -22,7 +23,7 @@ public:
         ids.assign(n, vector<int>());
     }
 
-    void add_edge(int u, int v, T cap, T cost) {
+    void add_edge(int u, int v, T cap, U cost) {
         int m = edges.size();
 
         edges.emplace_back(u, v, cap, cost);
@@ -32,11 +33,11 @@ public:
         ids[v].push_back(m + 1);
     }
 
-    pair<T, T> min_cost_flow(int src, int snk, int max_flow) {
+    pair<T, T> min_cost_flow(int src, int snk, T max_flow) {
         this->src = src;
         this->snk = snk;
 
-        pair<T, T> ans = make_pair(0, 0);
+        pair<T, U> ans = make_pair(0, 0);
         while (ans.first < max_flow && shortest_paths()) {
             auto [flow, cost] = get_flow_and_cost();
             T add = min(flow, max_flow - ans.first);
@@ -48,7 +49,7 @@ public:
         return ans;
     }
 
-    pair<T, T> min_cost_max_flow(int src, int snk) {
+    pair<T, U> min_cost_max_flow(int src, int snk) {
         return min_cost_flow(src, snk, numeric_limits<T>::max());
     }
 
@@ -70,7 +71,7 @@ private:
             relaxed.pop();
 
             for (auto id: ids[v]) {
-                auto [from, to, cap, cost, flow] = edges[id];
+                auto [from, to, cap, flow, cost] = edges[id];
 
                 int new_dist = dist[v] + cost;
                 if (cap - flow > 0 && new_dist < dist[to]) {
@@ -88,12 +89,12 @@ private:
         return dist[snk] < INF;
     }
 
-    pair<T, T> get_flow_and_cost() {
-        pair<T, T> flow_cost = make_pair(INF, 0);
+    pair<T, U> get_flow_and_cost() {
+        pair<T, U> flow_cost = make_pair(INF, 0);
 
         int v = snk;
         while (v != src) {
-            auto [from, to, cap, cost, flow] = edges[parent[v]];
+            auto [from, to, cap, flow, cost] = edges[parent[v]];
             flow_cost.first = min(flow_cost.first, cap - flow);
             flow_cost.second += cost;
             v = from;

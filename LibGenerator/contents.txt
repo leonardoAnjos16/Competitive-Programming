@@ -1,0 +1,75 @@
+[2013]
+2013/A.cpp	A
+2013/B.cpp	B
+2013/C.cpp	C
+2013/D.cpp	D
+2013/E.cpp	E
+2013/F.cpp	F
+2013/G.cpp	G
+2013/H.cpp	H
+2013/I.cpp	I
+2013/J.cpp	J
+
+[2018]
+2018/A.cpp	A
+2018/B.cpp	B
+2018/C.cpp	C
+2018/D.cpp	D
+2018/E.cpp	E
+2018/F.cpp	F
+2018/G.cpp	G
+2018/I.cpp	I
+2018/J.cpp	J
+2018/L.cpp	L
+
+[2019]
+2019/A.cpp	A
+2019/B.cpp	B
+2019/D.cpp	D
+2019/G.cpp	G
+2019/H.cpp	H
+2019/I.cpp	I
+2019/J.cpp	J
+2019/K.cpp	K
+2019/L.cpp	L
+2019/M.cpp	M
+
+[2020]
+2020/A.cpp	A
+2020/B.cpp	B
+2020/E.cpp	E
+2020/F.cpp	F
+2020/G.cpp	G
+2020/H.cpp	H
+2020/I.cpp	I
+2020/L.cpp	L
+2020/N.cpp	N
+
+[2021]
+2021/A.cpp	A
+2021/B.cpp	B
+2021/C.cpp	C
+2021/D_wrong.cpp	D (wrong)
+2021/E.cpp	E
+2021/G.cpp	G
+2021/H.cpp	H
+2021/K.cpp	K
+2021/L.cpp	L
+2021/M.cpp	M
+2021/N.cpp	N
+
+[2022]
+2022/A.cpp	A
+2022/B.cpp	B
+2022/C.cpp	C
+2022/D.cpp	D
+2022/E.cpp	E
+2022/F.cpp	F
+2022/G.cpp	G
+2022/H.cpp	H
+2022/I.cpp	I
+2022/J.cpp	J
+2022/K.cpp	K
+2022/L.cpp	L
+2022/M.cpp	M
+2022/N.cpp	N
